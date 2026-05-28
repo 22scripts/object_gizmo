@@ -1,0 +1,144 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: transparent !important;
+    background-color: transparent !important;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+#gizmo-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#root.hidden {
+    display: none !important;
+}
+
+#root {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+#root:not(.hidden) {
+    pointer-events: auto;
+}
+
+.panel {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    width: 360px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0;
+    padding: 1.4rem 1.6rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+}
+
+.gizmo-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+}
+
+.status {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.9rem;
+}
+
+.input-group {
+    margin-bottom: 0.75rem;
+}
+
+.input-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.input-row input {
+    flex: 1;
+    min-width: 4rem;
+    width: 0;
+    font-family: 'Montserrat', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.38rem 0.5rem;
+    height: 32px;
+    border-radius: 0;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.input-row input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.input-row input:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.input-row input:focus {
+    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(200, 85, 85, 0.35);
+    border: 1px solid rgba(220, 100, 100, 0.5);
+    border-radius: 0;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.9);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-icon:hover {
+    background: rgba(220, 100, 100, 0.5);
+    color: #fff;
+    border-color: rgba(240, 120, 120, 0.65);
+}
+
+.btn-icon .icon-reset {
+    width: 12px;
+    height: 12px;
+}

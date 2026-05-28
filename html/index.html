@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gizmo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gizmo-canvas"></canvas>
+
+    <div id="root" class="hidden">
+        <div class="panel">
+            <div class="gizmo-title" id="title">GIZMO</div>
+            <div class="status" id="selected-handle">Sélection : —</div>
+
+            <div class="input-group">
+                <label class="input-label">Position (x/y/z)</label>
+                <div class="input-row">
+                    <input type="number" id="pos-x" step="0.01" placeholder="X" title="X">
+                    <input type="number" id="pos-y" step="0.01" placeholder="Y" title="Y">
+                    <input type="number" id="pos-z" step="0.01" placeholder="Z" title="Z">
+                    <button type="button" id="reset-position" class="btn-icon" title="Remettre la position par défaut" aria-label="Reset position">
+                        <svg class="icon-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Rotation (x/y/z)</label>
+                <div class="input-row">
+                    <input type="number" id="rot-x" step="0.01" placeholder="X" title="X">
+                    <input type="number" id="rot-y" step="0.01" placeholder="Y" title="Y">
+                    <input type="number" id="rot-z" step="0.01" placeholder="Z" title="Z">
+                    <button type="button" id="reset-rotation" class="btn-icon" title="Remettre la rotation par défaut" aria-label="Reset rotation">
+                        <svg class="icon-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
