@@ -4,7 +4,13 @@ lua54 'yes'
 
 name 'FGizmo'
 author 'Firgyy'
-version '2.0.0'
+version '1.0.0'
+
+escrow_ignore {
+	'client/camera.lua',
+	'client/gizmo.lua',
+	'client/test.lua',
+}
 
 client_scripts {
 	'client/camera.lua',
