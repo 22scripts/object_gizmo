@@ -1,5 +1,5 @@
 {
-  "gizmo_title": "Placement",
+  "gizmo_title": "Custom Gizmo",
   "gizmo_hint": "Left click: select/drag | 1: Translate | 2: Rotate | Enter: Confirm | Backspace: Cancel",
   "current_mode": "Current Mode: %s",
   "coords": "Coords: %s",
@@ -25,6 +25,11 @@
   "gizmo_key_gizmo": "Gizmo",
   "gizmo_key_hide_cursor": "Hide cursor",
   "gizmo_key_show_cursor": "Show cursor",
+  "gizmo_key_scale_modifier": "Ctrl: modify size",
   "gizmo_key_duplicate": "Duplicate",
-  "gizmo_key_delete": "Delete"
+  "gizmo_key_delete": "Delete",
+  "gizmo_flag_admin": "Gizmo Admin",
+  "gizmo_flag_property": "Gizmo Property",
+  "gizmo_flag_items": "Gizmo Items",
+  "gizmo_flag_temporaire": "Gizmo Temporaire"
 }

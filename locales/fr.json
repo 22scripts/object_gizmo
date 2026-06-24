@@ -1,11 +1,11 @@
 {
-  "gizmo_title": "Placement",
+  "gizmo_title": "Gizmo Custom",
   "gizmo_hint": "Clic gauche: selection/drag | 1: Deplacement | 2: Rotation | Entree: Valider | Retour arriere: Annuler",
   "current_mode": "Mode Actuel: %s",
   "coords": "Coordonnees: %s",
   "rotation": "Rotation: %s",
   "enable_cursor": "Activer le curseur",
-  "disable_cursor": "Desactiver le Curseur",
+  "disable_cursor": "Désactiver le Curseur",
   "translate_mode": "Mode Translation",
   "rotate_mode": "Mode Rotation",
   "snap_to_ground": "Coller au Sol",
@@ -15,7 +15,7 @@
   "rotation_mode_description": "Passe le gizmo en mode rotation",
   "close_gizmo_description": "Valider les modifications",
   "snap_to_ground_description": "Coller l'objet au sol/surface",
-  "cancel_editing_description": "Annuler l'edition du gizmo",
+  "cancel_editing_description": "Annuler l'édition du gizmo",
   "gizmo_key_toggle_mode": "Mode Rotation / Gizmo",
   "gizmo_key_cancel": "Annuler",
   "gizmo_key_confirm": "Placer",
@@ -25,6 +25,11 @@
   "gizmo_key_gizmo": "Gizmo",
   "gizmo_key_hide_cursor": "Cacher le curseur",
   "gizmo_key_show_cursor": "Afficher le curseur",
+  "gizmo_key_scale_modifier": "Ctrl : modifier la taille",
   "gizmo_key_duplicate": "Dupliquer",
-  "gizmo_key_delete": "Supprimer"
+  "gizmo_key_delete": "Supprimer",
+  "gizmo_flag_admin": "Gizmo Admin",
+  "gizmo_flag_property": "Gizmo Property",
+  "gizmo_flag_items": "Gizmo Items",
+  "gizmo_flag_temporaire": "Gizmo Temporaire"
 }

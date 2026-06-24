@@ -61,8 +61,7 @@ function Camera.GetFov()
     return GetGameplayCamFov()
 end
 
--- Projection monde → écran (0..1) cohérente avec la caméra scripte courante,
--- sans passer par GetScreenCoordFromWorldCoord qui a un décalage d'une frame.
+
 function Camera.WorldToScreen(worldPos)
     if not Camera.IsActive() then return nil end
 
@@ -78,13 +77,13 @@ function Camera.WorldToScreen(worldPos)
     local fy =  math.cos(yaw) * math.cos(pitch)
     local fz =  math.sin(pitch)
 
-    -- right = cross(forward, worldUp)  →  (fy, -fx, 0)
+
     local rx, ry = fy, -fx
     local rlen = math.sqrt(rx * rx + ry * ry)
     if rlen < 0.0001 then rx, ry = 1.0, 0.0 else rx, ry = rx / rlen, ry / rlen end
     local rz = 0.0
 
-    -- up = cross(right, forward)
+
     local ux = ry * fz - rz * fy
     local uy = rz * fx - rx * fz
     local uz = rx * fy - ry * fx
@@ -95,9 +94,9 @@ function Camera.WorldToScreen(worldPos)
     local dy = worldPos.y - camPos.y
     local dz = worldPos.z - camPos.z
 
-    local camX = dx * rx + dy * ry + dz * rz  -- composante droite
-    local camY = dx * ux + dy * uy + dz * uz  -- composante haut
-    local camZ = dx * fx + dy * fy + dz * fz  -- profondeur (avant)
+    local camX = dx * rx + dy * ry + dz * rz
+    local camY = dx * ux + dy * uy + dz * uz
+    local camZ = dx * fx + dy * fy + dz * fz
 
     if camZ <= 0.001 then return nil end
 
@@ -191,23 +190,23 @@ function Camera.Update()
 
     local nextPos = vector3(camCoords.x, camCoords.y, camCoords.z)
 
-    if IsDisabledControlPressed(0, 32) then -- Z (W)
+    if IsDisabledControlPressed(0, 32) then
         nextPos = vector3(nextPos.x + forward.x * moveSpeed, nextPos.y + forward.y * moveSpeed, nextPos.z + forward.z * moveSpeed)
     end
-    if IsDisabledControlPressed(0, 33) then -- S
+    if IsDisabledControlPressed(0, 33) then
         nextPos = vector3(nextPos.x - forward.x * moveSpeed, nextPos.y - forward.y * moveSpeed, nextPos.z - forward.z * moveSpeed)
     end
-    if IsDisabledControlPressed(0, 34) then -- Q (A)
+    if IsDisabledControlPressed(0, 34) then
         nextPos = vector3(nextPos.x + right.x * moveSpeed, nextPos.y + right.y * moveSpeed, nextPos.z)
     end
-    if IsDisabledControlPressed(0, 35) then -- D
+    if IsDisabledControlPressed(0, 35) then
         nextPos = vector3(nextPos.x - right.x * moveSpeed, nextPos.y - right.y * moveSpeed, nextPos.z)
     end
 
-    if IsDisabledControlPressed(0, 44) then -- A (AZERTY) / Q (QWERTY)
+    if IsDisabledControlPressed(0, 44) then
         nextPos = vector3(nextPos.x, nextPos.y, nextPos.z + moveSpeed)
     end
-    if IsDisabledControlPressed(0, 38) then -- E
+    if IsDisabledControlPressed(0, 38) then
         nextPos = vector3(nextPos.x, nextPos.y, nextPos.z - moveSpeed)
     end
 
@@ -231,3 +230,4 @@ AddEventHandler('onResourceStop', function(resourceName)
     if resourceName ~= GetCurrentResourceName() then return end
     Camera.Stop()
 end)
+

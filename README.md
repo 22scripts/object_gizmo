@@ -1,130 +1,78 @@
-# FGizmo
+# object_gizmo — 22scripts
 
-Ressource client légère de placement 3D pour FiveM (gizmo custom, sans `DrawGizmo` natif).  
-Dépendance unique : **ox_lib**. Aucun serveur, aucune base de données.
+Gizmo de manipulation d'entités (position / rotation / échelle) dessiné en NUI, avec
+caméra libre (freecam). Exporté pour être utilisé par d'autres ressources (ex: `22_propsplacer`).
 
-Le script parent spawn l'entité, appelle `useGizmo`, puis sauvegarde position/rotation (BDD, JSON, etc.).
+## Installation
+
+1. Placer le dossier `object_gizmo` dans `resources/`.
+2. Ajouter `ensure object_gizmo` au `server.cfg` (avant les ressources qui l'utilisent).
+3. Dépendance : `ox_lib`.
 
 ## Exports
 
 ```lua
-exports.FGizmo:useGizmo(entity, options?)
-exports.FGizmo:isGizmoActive()
+-- Lance une session gizmo (BLOQUANT : à appeler dans un CreateThread).
+local result = exports.object_gizmo:useGizmo(entity, options)
+
+-- Forme complète (mêmes options).
+local result = exports.object_gizmo:openGizmo({ entity = entity, options = options })
+
+-- Une session est-elle active ? (utile pour éviter de supprimer l'entité éditée)
+local active = exports.object_gizmo:isGizmoActive()   -- alias : isActive()
+
+-- Ré-applique une échelle {g,x,y,z} (offsets, 0 = natif) à une entité (respawn/streaming).
+exports.object_gizmo:applyEntityScale(entity, { g = 0, x = 0, y = 0, z = 0 })
 ```
 
-### Retour de `useGizmo`
+### Options (table, toutes optionnelles)
+
+| Option | Type | Rôle |
+|---|---|---|
+| `lockEntity` | bool | Empêche de changer d'entité (clic freecam) |
+| `gizmoFlag` | string | Libellé affiché dans le titre (ex: `'items'`) |
+| `initialScale` | `{g,x,y,z}` | Échelle de départ (édition d'un prop déjà mis à l'échelle) |
+| `allowDelete` / `onDelete(entity)` | bool / fn | Active la suppression (touche Suppr) |
+| `allowDuplicate` / `onDuplicate(entity, taille)` | bool / fn | Active la duplication (touche C) |
+| `entityFilter` / `allowedEntities` | fn / table | Restreint les entités sélectionnables en freecam |
+
+### Retour
 
 ```lua
 {
-    handle = entity,
-    result = 'confirm' | 'cancel' | 'invalid' | 'busy',
-    position = vector3,
-    rotation = vector3,
-    modifications = { { entity, position, rotation }, ... }  -- optionnel (multi-entités)
+  result   = 'confirm' | 'cancel' | 'busy' | 'invalid',
+  position = vector3,                 -- pivot final
+  rotation = vector3,                 -- Euler ordre 2 (heading sur z)
+  taille   = { g, x, y, z },          -- échelle (offsets, 0 = taille native)
+  modifications = { { entity, position, rotation, taille }, ... },
 }
 ```
 
-### Options
-
-| Option | Défaut | Description |
-|--------|--------|-------------|
-| `lockEntity` | `true` si pas de filter | Une seule entité, pas de changement via freecam |
-| `entityFilter` | `nil` | `function(ent) -> bool` pour le raycast freecam |
-| `allowedEntities` | `nil` | Table `{ [entity] = true }` pour édition multi-props (admin) |
-| `title` | `"Placement"` | Titre du panneau NUI |
-| `allowFreecam` | `true` | Désactiver la freecam si besoin |
-| `onDuplicate` | `nil` | `function(ent) -> newEntity?` (touche C) |
-| `onDelete` | `nil` | `function(ent) -> bool` (touche Suppr) |
-
-## Exemple — prop
-
-```lua
-local model = `prop_mp_cone_02`
-lib.requestModel(model)
-local coords = GetEntityCoords(cache.ped) + GetEntityForwardVector(cache.ped) * 3.0
-local obj = CreateObject(model, coords.x, coords.y, coords.z, false, false, false)
-
-local result = exports.FGizmo:useGizmo(obj, {
-    lockEntity = true,
-    title = 'Placement prop',
-})
-
-if result.result == 'confirm' then
-    -- Sauvegarder result.position et result.rotation dans votre BDD / JSON
-elseif result.result == 'cancel' then
-    DeleteEntity(obj)
-end
-```
-
-## Exemple — ped
-
-```lua
-local model = `a_m_y_hipster_01`
-lib.requestModel(model)
-local coords = GetEntityCoords(cache.ped) + GetEntityForwardVector(cache.ped) * 2.0
-local ped = CreatePed(4, model, coords.x, coords.y, coords.z, 0.0, false, false)
-
-local result = exports.FGizmo:useGizmo(ped, { title = 'Placement PNJ' })
-
-if result.result == 'confirm' then
-    -- Sauvegarder coords / rotation
-else
-    DeleteEntity(ped)
-end
-```
-
-## Exemple — callbacks duplicate / delete
-
-```lua
-local result = exports.FGizmo:useGizmo(entity, {
-    onDuplicate = function(ent)
-        local c = GetEntityCoords(ent)
-        local r = GetEntityRotation(ent, 2)
-        local copy = CreateObject(GetEntityModel(ent), c.x + 1.0, c.y, c.z, false, false, false)
-        SetEntityRotation(copy, r.x, r.y, r.z, 2, true)
-        return copy
-    end,
-    onDelete = function(ent)
-        DeleteEntity(ent)
-        return true
-    end,
-})
-```
-
-## Fonctionnalités
-
-- **Translation** : axes X / Y / Z et plans XY / XZ / YZ
-- **Rotation** : anneaux X / Y / Z
-- **Freecam** : navigation libre + sélection d'entité (si `lockEntity = false` ou `allowedEntities`)
-- **UI NUI** : saisie coords/rotation, snap au sol, ratio de vitesse
-- **Annulation** : restaure position/rotation initiales
-
 ## Contrôles
 
-- **Clic gauche** : sélection + drag axe / plan / anneau
-- **1 / 2** : translation / rotation
-- **F** : basculer gizmo / freecam (si activé)
-- **Shift** : coller au sol
-- **Entrée** : valider
-- **Retour arrière** : annuler
-- **C / Suppr** : duplicate / delete (si callbacks fournis)
+| Touche | Action |
+|---|---|
+| **Clic gauche** | Saisir un axe / plan / anneau du gizmo |
+| **R** | Basculer Translation / Rotation |
+| **F** | Basculer Gizmo / Freecam |
+| **G** | Afficher / cacher le curseur |
+| **Molette** | Ratio de déplacement (gizmo) / vitesse caméra (freecam) |
+| **Maj (Shift)** | Coller au sol |
+| **Ctrl (maintenu) + glisser** | Modifier l'échelle (en freecam, mode translation) |
+| **C** | Dupliquer (si activé) |
+| **Suppr** | Supprimer (si activé) |
+| **Entrée** | Valider |
+| **Retour arrière** | Annuler |
 
-## Test rapide
+Les indications de touches sont affichées en bas de l'écran (scaleform INSTRUCTIONAL_BUTTONS),
+**Annuler** étant placé tout à droite.
 
-Commande incluse :
+## Commande de test
 
-```
-testGizmo
-```
+`/testGizmo` — crée un prop devant le joueur et ouvre le gizmo dessus (voir `client/test.lua`).
 
-Crée un cône devant le joueur, ouvre le gizmo avec callbacks duplicate/delete de démonstration.
+## Notes
 
-## Installation
-
-1. Placer la ressource `FGizmo` dans votre dossier resources
-2. `ensure ox_lib`
-3. `ensure FGizmo` (avant les scripts qui appellent l'export)
-
-## Debug
-
-Convar : `setr fgizmo:debugPlacement 1` pour activer les logs `[FGizmo]`.
+- `useGizmo` est **bloquant** (boucle interne) : toujours l'appeler dans un `CreateThread`.
+- L'échelle utilise le format `{g,x,y,z}` (offsets, 0 = taille native), appliquée via matrice.
+- Convention de rotation : Euler **ordre 2** (le heading est sur l'axe Z).

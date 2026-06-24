@@ -1,8 +1,8 @@
 const resourceName = (typeof GetParentResourceName === "function")
     ? GetParentResourceName()
-    : "FGizmo";
+    : "object_gizmo";
 
-// ─── DOM ────────────────────────────────────────────────────────────────────
+
 const canvas     = document.getElementById("gizmo-canvas");
 const ctx        = canvas.getContext("2d");
 const root       = document.getElementById("root");
@@ -16,19 +16,24 @@ const rotY       = document.getElementById("rot-y");
 const rotZ       = document.getElementById("rot-z");
 const resetPosBtn   = document.getElementById("reset-position");
 const resetRotBtn   = document.getElementById("reset-rotation");
+const scaleGlobal   = document.getElementById("scale-global");
+const scaleX        = document.getElementById("scale-x");
+const scaleY        = document.getElementById("scale-y");
+const scaleZ        = document.getElementById("scale-z");
+const resetScaleBtn = document.getElementById("reset-scale");
 
-// ─── Noms lisibles des handles ───────────────────────────────────────────────
+
 const HANDLE_NAMES = {
     axis_x:   "Axe X (Rouge)",     axis_y:  "Axe Y (Bleu)",   axis_z:  "Axe Z (Vert)",
     plane_xy: "Plan XY — Sol",     plane_xz:"Plan XZ — Gauche", plane_yz:"Plan YZ — Droite",
     ring_x:   "Anneau X",          ring_y:  "Anneau Y",          ring_z:  "Anneau Z"
 };
 
-// ─── État ────────────────────────────────────────────────────────────────────
+
 let isActive   = false;
 let pendingDraw = null;
 
-// ─── Canvas resize ────────────────────────────────────────────────────────────
+
 function resizeCanvas() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -36,7 +41,7 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 function post(endpoint, payload = {}) {
     fetch(`https://${resourceName}/${endpoint}`, {
         method: "POST",
@@ -82,13 +87,34 @@ function emitRotation() {
     }
 }
 
-// ─── Canvas : dessin ─────────────────────────────────────────────────────────
+function emitScale() {
+    const g = parseFloat(scaleGlobal.value);
+    const x = parseFloat(scaleX.value);
+    const y = parseFloat(scaleY.value);
+    const z = parseFloat(scaleZ.value);
+    post("gizmoSetScale", {
+        global: Number.isFinite(g) ? g : 0,
+        x:      Number.isFinite(x) ? x : 0,
+        y:      Number.isFinite(y) ? y : 0,
+        z:      Number.isFinite(z) ? z : 0
+    });
+}
+
+function setScaleInputs(g, x, y, z) {
+    scaleGlobal.value = Number(g ?? 0).toFixed(2);
+    scaleX.value      = Number(x ?? 0).toFixed(2);
+    scaleY.value      = Number(y ?? 0).toFixed(2);
+    scaleZ.value      = Number(z ?? 0).toFixed(2);
+}
+
+
 
 function drawArrow(x1, y1, x2, y2, r, g, b, sel) {
     const lw      = sel ? 4.0 : 2.8;
     const headLen = sel ? 19.0  : 14.0;
     const angle   = Math.atan2(y2 - y1, x2 - x1);
     const color   = col(r, g, b);
+
 
     const tipX = x2;
     const tipY = y2;
@@ -103,6 +129,7 @@ function drawArrow(x1, y1, x2, y2, r, g, b, sel) {
         ctx.shadowBlur  = 10;
     }
 
+
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(stemEndX, stemEndY);
@@ -110,6 +137,7 @@ function drawArrow(x1, y1, x2, y2, r, g, b, sel) {
     ctx.lineWidth   = lw;
     ctx.lineCap     = "round";
     ctx.stroke();
+
 
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
@@ -141,12 +169,14 @@ function drawPlane(corners, r, g, b, sel) {
         ctx.shadowBlur  = 8;
     }
 
+
     ctx.beginPath();
     ctx.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
     ctx.closePath();
     ctx.fillStyle = col(r, g, b, sel ? 0.38 : 0.22);
     ctx.fill();
+
 
     ctx.beginPath();
     ctx.moveTo(pts[0][0], pts[0][1]);
@@ -185,6 +215,7 @@ function drawRing(points, r, g, b, sel) {
     ctx.restore();
 }
 
+
 function drawGuideline(x1, y1, x2, y2) {
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -211,11 +242,13 @@ function renderGizmo(data) {
 
     const items = Array.isArray(data.items) ? data.items : [];
     if (items.length > 0) {
+
         for (const item of items) {
             if (item.kind === "axis" && item.guideline) {
                 drawGuideline(px(item.x1), py(item.y1), px(item.x2), py(item.y2));
             }
         }
+
 
         const order = ["plane", "ring", "axis"];
         for (const kind of order) {
@@ -254,6 +287,7 @@ function renderGizmo(data) {
     }
 }
 
+
 function renderLoop() {
     requestAnimationFrame(renderLoop);
     if (isActive && pendingDraw) {
@@ -263,6 +297,7 @@ function renderLoop() {
     }
 }
 renderLoop();
+
 
 window.addEventListener("message", (event) => {
     const data = event.data || {};
@@ -290,8 +325,18 @@ window.addEventListener("message", (event) => {
         if (!rotInputs.includes(document.activeElement)) {
             setRotationInputs(data.rotation);
         }
+        return;
+    }
+
+    if (data.action === "resetScale") {
+        setScaleInputs(0, 0, 0, 0);
+        return;
+    }
+    if (data.action === "setScale") {
+        setScaleInputs(data.global, data.x, data.y, data.z);
     }
 });
+
 
 document.addEventListener("mousemove", (e) => {
     if (!isActive) return;
@@ -311,7 +356,8 @@ document.addEventListener("mouseup", (e) => {
     post("gizmoMouseUp");
 });
 
-const coordInputs = [posX, posY, posZ, rotX, rotY, rotZ];
+
+const coordInputs = [posX, posY, posZ, rotX, rotY, rotZ, scaleGlobal, scaleX, scaleY, scaleZ];
 function isCoordInputFocused() {
     return coordInputs.includes(document.activeElement);
 }
@@ -337,17 +383,20 @@ document.addEventListener("keydown", (e) => {
     else if (e.key === "Shift")  post("gizmoAction", { action: "snap"           });
 });
 
+
 document.addEventListener("wheel", (e) => {
     if (!isActive) return;
     e.preventDefault();
     post("gizmoAction", { action: "ratio_delta", delta: e.deltaY });
 }, { passive: false });
 
+
 document.addEventListener("mousedown", (e) => {
     if (!isActive || e.button !== 1) return;
     e.preventDefault();
     post("gizmoAction", { action: "ratio_reset" });
 });
+
 
 [posX, posY, posZ].forEach((input) => {
     input.addEventListener("blur", emitPosition);
@@ -372,5 +421,20 @@ document.addEventListener("mousedown", (e) => {
     });
 });
 
+
 resetPosBtn.addEventListener("click", () => post("gizmoResetPosition", {}));
 resetRotBtn.addEventListener("click", () => post("gizmoResetRotation", {}));
+resetScaleBtn.addEventListener("click", () => post("gizmoResetScale", {}));
+
+
+[scaleGlobal, scaleX, scaleY, scaleZ].forEach((input) => {
+    input.addEventListener("blur", emitScale);
+    input.addEventListener("change", emitScale);
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            input.blur();
+        }
+    });
+});
